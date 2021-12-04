@@ -4,6 +4,8 @@
 
 if (!require(data.table)) install.packages('data.table') + library(data.table)
 
+# Hall liebe Leute
+
 ################################
 ########Data import#############
 ################################
