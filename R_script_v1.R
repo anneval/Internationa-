@@ -35,7 +35,7 @@ HSdat<-data.table::rbindlist(HSdat.list)
 ##############SITC classfication###################
 
 #set working directory
-setwd("~/WU/MASTER/WS2122/R&P International/Environment/RTA_environment/STcsv")
+setwd("/Users/annevalder/Desktop/LJKHCprediction_ols, test$MedHousePrice/WU WIEN/WS21_22_Oslo/International_Seminar/data/STcsv")
 
 #list all files that are saved in the directory folder
 temp1 = list.files(pattern="*.csv")
@@ -43,7 +43,7 @@ STdat.list <- lapply(temp1,function(x){
   read.csv(file = x,
            sep =",",
            fill = TRUE,
-           quote="", 
+           #quote="", 
            header = T 
   )
 }
@@ -51,3 +51,4 @@ STdat.list <- lapply(temp1,function(x){
 
 #bind whole list to one dataframe
 STdat<-data.table::rbindlist(STdat.list)
+summary(STdat)
