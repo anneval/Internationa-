@@ -111,19 +111,19 @@ get.Comtrade <- function(url="http://comtrade.un.org/api/get?"
 
 ############### Extract HS data for 1984-2016 ####################
 
-s1_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="2009,2010,2011,2012,2013,2014,2015,2016",px="H0")
+s1_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="2009,2010,2011,2012,2013,2014,2015,2016",px="H1")
 s1_HS <- s1_HS$data
 summary(s1_HS)
 
-s2_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="2001,2002,2003,2004,2005,2006,2007,2008",px="H0")
+s2_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="2001,2002,2003,2004,2005,2006,2007,2008",px="H1")
 s2_HS <- s2_HS$data
 summary(s2_HS)
 
-s3_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="1993,1994,1995,1996,1997,1998,1999,2000",px="H0")
+s3_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="1993,1994,1995,1996,1997,1998,1999,2000",px="H1")
 s3_HS <- s3_HS$data
 summary(s3_HS)
 
-s4_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="1984,1985,1986,1987,1988,1989,1990,1991,1992",px="H0") #  I think there is no data down from 1988
+s4_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="1984,1985,1986,1987,1988,1989,1990,1991,1992",px="H1") #  I think there is no data down from 1988
 s4_HS <- s4_HS$data
 summary(s4_HS$Year)
 
@@ -219,5 +219,18 @@ Data_final <- left_join(Comtrade,TREND_new_small,by=c("Partner","Reporter")) # J
 
 Data_final_1 <- filter(Data_final, Data_final$Trade.Agreement != "")
 #Data_final_2 <- Data_final %>% filter(!is.na(Trade.Agreement))
+
+#### TEST just with 1 reporter country
+
+### here it works with the smaller sample
+
+Comtrade_AT <- filter(Comtrade,Reporter == "Austria")
+TREND_new_small_AT <- filter(TREND_new_small, Reporter == "Austria")
+Data_final_AT <- left_join(Comtrade_AT,TREND_new_small_AT,by=c("Partner","Reporter"))
+Data_final_AT_1 <- filter(Data_final_AT, Data_final_AT$Trade.Agreement != "")
+
+
+
+
 
 
