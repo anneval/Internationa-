@@ -125,7 +125,7 @@ summary(s3_HS)
 
 s4_HS <- get.Comtrade(r="all", p="all", rg = 2,fmt="csv", ps="1984,1985,1986,1987,1988,1989,1990,1991,1992",px="H0") #  I think there is no data down from 1988
 s4_HS <- s4_HS$data
-summary(s4_HS)
+summary(s4_HS$Year)
 
 data_all_HS <- rbind(s4_HS,s3_HS,s2_HS,s1_HS)
 data_all_clean_HS <- data_all_HS[,c(1,2,7,10,11,13,14,32)]
@@ -162,13 +162,11 @@ summary(data_all_clean_ST)
 # drop World observations
 
 data_all_clean_ST <- data_all_clean_ST %>% filter(Partner !="World") # Reporter cannot be World right? 
-summary(data_all_clean_ST)
+#summary(data_all_clean_ST)
 
 #####################Combine HS and ST #####################
 
-
-#Comtrade <- merge(data_all_clean_HS,data_all_clean_ST,by=c("Reporter","Partner"))
-
+Comtrade <- merge(data_all_clean_HS,data_all_clean_ST,by=c("Reporter","Partner","Year"))
 
 ############# Read in TREND data set #############
 library(readxl)
@@ -183,7 +181,7 @@ TREND$PE_sum <- rowSums(TREND[,-c(1:4)]) # delete not needed columns
 
 #####INCOME data##########
 GNI <- read_csv(file.path(data_path, "GNI_data.csv"))
-GNI[1:217,c(3:5)]
+GNI <- GNI[1:217,c(3,5)] # select onyl countries and relevant columns! 
 GNI <- drop_na(GNI)
 
 #########  Different approach first align GNI to TREND and then create dummy for either country!
@@ -191,32 +189,35 @@ GNI <- drop_na(GNI)
 
 colnames(GNI)[1] <- "country"
 colnames(TREND)[2] <- "country"
-DATA <- left_join(TREND,GNI,by="country") 
+TREND_new <- left_join(TREND,GNI,by="country") 
 
 colnames(GNI)[1] <- "country2"
-DATA <- left_join(DATA,GNI,by="country2") 
+TREND_new <- left_join(TREND_new,GNI,by="country2") 
 
-DATA$`2016 [YR2016].x` <- as.integer(DATA$`2016 [YR2016].x`)
-DATA$`2016 [YR2016].y` <- as.integer(DATA$`2016 [YR2016].y`)
+TREND_new$`2016 [YR2016].x` <- as.integer(TREND_new$`2016 [YR2016].x`)
+TREND_new$`2016 [YR2016].y` <- as.integer(TREND_new$`2016 [YR2016].y`)
 
-DATA$DevelpC <- ifelse(DATA$`2016 [YR2016].x` < 9265 | DATA$`Country Code.y` < 9265 , 1, 0) # 2000 Value 
-DATA <- filter(DATA,DevelpC == 1) 
-mean(DATA$PE_sum) # average number of PEs in PTAs! 26.77
-max(DATA$PE_sum)# 134
 
-### COMPARE TO LIST OF DEVELOPING COUNTRIES IN PAPER APPENDIX 
+TREND_new$DevelpC <- ifelse(TREND_new$`2016 [YR2016].x` < 9265 | TREND_new$`2016 [YR2016].y` < 9265 , 1, 0) # 2000 Value 
+TREND_new <- filter(TREND_new,DevelpC == 1) ## also higher income values because only 1 needs to be developing !!! 
+mean(TREND_new$PE_sum) # average number of PEs in PTAs! 26.26
+max(TREND_new$PE_sum)# 134
+###TO DO: COMPARE TO LIST OF DEVELOPING COUNTRIES IN PAPER APPENDIX 
 
 ### Relate Comtrade and TREND data ####
 
-colnames(DATA)[2] <- "Reporter"
-colnames(DATA)[3] <- "Partner"
+colnames(TREND_new)[2] <- "Reporter"
+colnames(TREND_new)[3] <- "Partner"
 
 # 1) Combine Comtrade (ALL trades) with modified TREND Data (includes all Trades with PTAs (including PEs))
 
-ALL <- left_join(data_all_clean_ST,sub_Data,by="Partner") #496607 #c("Reporter","Partner"), 499687 reporter, 499607 partner
-ALL <- filter(ALL, ALL$Trade.Agreement != "")
+TREND_new_small <- TREND_new[,c(1,2,3,4,300,301,302,303)] # delete not needed columns for now .. 
+Data_final <- left_join(Comtrade,TREND_new_small,by=c("Partner","Reporter")) # JOIN COMTRADE AND TREND 
 
-summary(data_all_clean_ST$Year)
-sub_Data <- filter(DATA, DATA$Reporter == "Albania")
+#### Keep only those which have PTA: 
+###leads to only about 300...
+
+Data_final_1 <- filter(Data_final, Data_final$Trade.Agreement != "")
+#Data_final_2 <- Data_final %>% filter(!is.na(Trade.Agreement))
 
 
